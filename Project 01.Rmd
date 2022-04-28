@@ -1,0 +1,31 @@
+---
+title: 'Project 01: NOAA Precipitation Types'
+author: "Josh Job Joseph"
+date: "4/26/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(fields)
+library(lattice)
+
+load("DOC_baseFlow_weightedAvg_and_predictors.RData")
+
+data <- DOC_baseFlow_weightedAvg_and_predictors
+dim(data)
+
+
+```
+
+```{r}
+
+full_mod <- lm(data$meanDOC ~ ., data = data[,-(1:2)])
+BIC <- step(full_mod, direction="backward", k=log(nrow(data)), trace = 0)
+plot(data$Year, data$meanDOC)
+abline(BIC, col = 'red')
+abline(full_mod, col = 'blue')
+```
