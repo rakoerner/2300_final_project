@@ -1,13 +1,18 @@
 ---
-title: 'Project 01: NOAA Precipitation Types'
+title: "Project_DS"
 author: "Josh Job Joseph"
-date: "4/26/2022"
+date: "4/28/2022"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  comment = "#", fig.height = 4, 
+  cache = FALSE,  collapse = TRUE,
+  error = TRUE
+)
 ```
+
 
 ```{r}
 library(fields)
@@ -18,15 +23,114 @@ load("DOC_baseFlow_weightedAvg_and_predictors.RData")
 data <- DOC_baseFlow_weightedAvg_and_predictors
 dim(data)
 
-
+test_and_train = sort(sample(nrow(data), nrow(data)*.5))
+train<- data[test_and_train,]
+test<- data[-(test_and_train),]
 ```
 
 ```{r}
-data_for_BIC <- data[,-1]
+data_for_BIC <- train[,-1]
 data_for_BIC <- data_for_BIC[,-1]
 full_mod <- lm(meanDOC ~ ., data = data_for_BIC)
-BIC <- step(full_mod, direction="backward", k=log(nrow(data)), trace = 0)
-plot(data$Year, data$meanDOC)
-abline(BIC, col = 'red')
-abline(full_mod, col = 'blue')
+BIC <- step(full_mod, direction="backward", k=log(nrow(train)), trace = 0)
+```
+
+```{r}
+empty_model <- lm(meanDOC ~ 1, data = data_for_BIC)
+forwards_model <- step(empty_model, direction="forward", k=log(nrow(train)), 
+                       trace = 0)
+```
+
+```{r}
+elevation_model <- lm(train$meanDOC ~ train$elevation_mean, data = train)
+plot(train$Year, train$meanDOC)
+lines(train$Year, predict(elevation_model, train), type = 'p', col = 'red')
+```
+
+```{r}
+library(glmnet)
+# don't make predictions based on these variables
+leave_out <- which((colnames(train) == "Year")| 
+                     (colnames(train) == "meanDOC"))
+# create our independent variables (x) and dependent variable (y)
+
+x <- as.matrix(train[,-leave_out])
+y <- train$meanDOC
+lasso_model <- cv.glmnet(x, y)
+coef(lasso_model)
+```
+
+```{r}
+lasso_predictions <- predict(lasso_model, newx=x)
+
+lasso_residuals <- lasso_predictions - y
+
+SSR <- sum(lasso_residuals ^ 2)
+
+mean_DOC <- mean(train$meanDOC)
+
+SST <- sum((train$meanDOC - mean_DOC) ^ 2)
+
+R_Squared = 1 - SSR / SST
+
+R_Squared
+```
+
+```{r}
+test_BIC <- predict(BIC, test)
+errors_BIC <- test$meanDOC- test_BIC
+BIC_R_Squared <- cor(test_BIC, test$meanDOC)^2
+BIC_RMSE <- sqrt(mean(errors_BIC^2))
+BIC_MAE <- mean(abs(errors_BIC))
+
+test_forwards <- predict(forwards_model, test)
+errors_forwards <- test$meanDOC- test_forwards
+forwards_R_Squared <- cor(test_forwards, test$meanDOC)^2
+forwards_RMSE <- sqrt(mean(errors_forwards^2))
+forwards_MAE <- mean(abs(errors_forwards))
+
+test_elevation <- predict(elevation_model, test)
+errors_elevation <- test$meanDOC - test_elevation
+elevation_R_Squared <- cor(test_elevation, test$meanDOC)^2
+elevation_RMSE <- sqrt(mean(errors_elevation^2))
+elevation_MAE <- mean(abs(errors_elevation))
+
+test_for_lasso <- as.matrix(test[,-leave_out])
+best_lambda = lasso_model$lambda.min
+test_lasso <- predict(lasso_model, s = best_lambda, newx = test_for_lasso)
+lasso_R_Squared <- cor(test_lasso, test$meanDOC)^2
+errors_lasso <- test$meanDOC - test_lasso
+lasso_RMSE <- sqrt(mean(errors_lasso^2))
+lasso_MAE <- mean(abs(errors_lasso))
+```
+BIC
+$R^2$ - `r BIC_R_Squared`
+RMSE - `r BIC_RMSE`
+MAE - `r BIC_MAE`
+
+Forwards Model
+$R^2$ - `r forwards_R_Squared`
+RMSE - `r forwards_RMSE`
+MAE - `r forwards_MAE`
+
+
+Elevation_Model
+$R^2$ - `r elevation_R_Squared`
+RMSE - `r elevation_RMSE`
+MAE - `r elevation_MAE`
+
+Lasso
+$R^2$ - `r lasso_R_Squared`
+RMSE - `r lasso_RMSE`
+MAE - `r lasso_MAE`
+
+```{r}
+plot(test$Year, test$meanDOC)
+lines(test$Year, test_BIC, col = 'red', type = 'p')
+plot(test$Year, test$meanDOC)
+lines(test$Year, test_elevation, col = 'blue', type = 'p')
+plot(test$Year, test$meanDOC)
+lines(test$Year, test_lasso, col = 'green', type = 'p')
+plot(test$Year, test$meanDOC)
+lines(test$Year, test_forwards, col = 'purple', type = 'p')
 ```
