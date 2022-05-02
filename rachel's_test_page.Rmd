@@ -1,0 +1,170 @@
+---
+title: "Trials"
+author: "Rachel Koerner"
+date: "4/28/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Project #2 USGS DOC Data
+
+##--------------------------------------
+## Install and load any needed libraries
+##--------------------------------------
+
+library(fields)
+library(lattice)
+
+
+##--------------------------------------
+## Load the data
+##--------------------------------------
+
+load("DOC_baseFlow_weightedAvg_and_predictors.RData")
+ls()
+
+#This is a really long name for a dataset, so this command just renames it.
+
+data <- DOC_baseFlow_weightedAvg_and_predictors
+
+
+#pairs(meanDOC ~., data = data)
+
+```
+
+
+
+
+```{r}
+#backwards model
+n = nrow(data)
+full_model <- lm(meanDOC ~., data = data)
+bic <- step(full_model, direction = "backward", k = log(n), trace = 0)
+```
+
+The final coefficients are:
+  * fire_normRdNBR_5yDecay
+  * fire_normRdNBR_10yDecay
+  * fire_normRdNBR_15yDecay
+  * landCover_developedFraction
+  * landCover_forestFraction
+  * minTemp_baseFlow
+  * maxTemp_baseFlow
+  * precip_baseFlow
+  * precip_nonBaseFlow
+  * SWE_baseFlow
+  * soil_Bfraction
+  * elevation_mean
+  * aspect_predominant
+  * wasteWaterPointSources_count
+  
+```{r}
+mic <- step(full_model, direction = "backward", k = n-1, trace = 0)
+summary(mic)
+
+```
+
+The final coefficient to be removed is the elevation_mean.
+
+```{r}
+plot(data$meanDOC, data$elevation_mean)
+model <- lm(elevation_mean ~ meanDOC, data = data)
+abline(model, col = "red")
+```
+
+
+
+
+
+```{r}
+#forward selection
+small_model <- lm(meanDOC ~1, data = data)
+fwd <- step(small_model, direction = "forward", scope = formula(full_model), k = log(n), trace = 0)
+```
+
+The resulting coefficients are:
+  * elevation_mean
+  * wasteWaterPointSources_count
+  * maxTemp_baseFlow
+  * aspect_predominant
+  * soil_Bfraction
+  * landCover_developedFraction
+  * precip_baseFlow
+  * landCover_forestFraction
+  * fire_normRdNBR_5yDecay
+  * minTemp_yearAvg
+  * precip_nonBaseFlow
+
+
+
+
+```{r}
+
+#lasso fit
+suppressMessages(library(glmnet))
+leave_out <- which((colnames(data) == "meanDOC"))
+irrelevant <- matrix(rnorm(nrow(data) * 5), nrow(data), 5)
+colnames(irrelevant) <- paste("i", 1:5, sep = "")
+x <- cbind(as.matrix(data[, -leave_out]), irrelevant)
+y <- data$meanDOC
+
+lasso_fit <- cv.glmnet(x, y)
+coef(lasso_fit)
+
+```
+
+Coefficients remaining are:
+  * maxTemp_baseFlow
+  * maxTemp_yearAvg**
+  * soil_Afraction**
+  * elevation_mean
+  * aspect_predominant
+  * wasteWaterPointSources_count
+  
+**unique to lasso fit model
+
+
+```{r}
+plot(lasso_fit)
+```
+
+
+
+
+```{r}
+plot(data$meanDOC, data$elevation_mean)
+model <- lm(elevation_mean ~ meanDOC, data = data)
+abline(model, col = "red")
+
+green <- data[data$MPB_greenFraction > 0, ]
+red <- data[data$MPB_redFraction > 0, ]
+gray <- data[data$MPB_grayFraction > 0, ]
+
+
+points(red$meanDOC, red$elevation_mean, col = "red")
+points(gray$meanDOC, gray$elevation_mean, col = "gray")
+points(green$meanDOC, green$elevation_mean, col = "darkgreen")
+
+
+```
+
+
+```{r}
+plot(data$meanDOC, data$elevation_mean)
+model <- lm(elevation_mean ~ meanDOC, data = data)
+abline(model, col = "red")
+
+green <- data[data$landCover_developedFraction > 0, ]
+red <- data[data$landCover_agriculturalFraction > 0, ]
+gray <- data[data$landCover_forestFraction > 0, ]
+
+points(gray$meanDOC, gray$elevation_mean, col = "gray")
+points(green$meanDOC, green$elevation_mean, col = "darkgreen")
+points(red$meanDOC, red$elevation_mean, col = "red")
+
+
+```
