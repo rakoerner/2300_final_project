@@ -71,7 +71,8 @@ summary(mic)
 The final coefficient to be removed is the elevation_mean.
 
 ```{r}
-plot(data$meanDOC, data$elevation_mean)
+plot(data$meanDOC, data$elevation_mean, xlab = "DOC", ylab = "Elevation Mean",
+     main = "Linear Model for DOC")
 model <- lm(elevation_mean ~ meanDOC, data = data)
 abline(model, col = "red")
 ```
@@ -84,6 +85,36 @@ abline(model, col = "red")
 #forward selection
 small_model <- lm(meanDOC ~1, data = data)
 fwd <- step(small_model, direction = "forward", scope = formula(full_model), k = log(n), trace = 0)
+
+
+
+#josh's work:
+test_and_train = sort(sample(nrow(data), nrow(data)*.5))
+train<- data[test_and_train,]
+test<- data[-(test_and_train),]
+
+data_for_BIC <- train[,-1]
+trainx <- data_for_BIC[,-1]
+
+testx <- test[, -1]
+testx <- testx[, -1]
+
+#THIS WORKSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+full_model <- lm(meanDOC ~., data = trainx)
+empty_model <- lm(meanDOC ~ 1, data = trainx)
+forwards_model <- step(empty_model, direction="forward", k=log(nrow(trainx)), 
+                       scope = formula(full_model), trace = 0)
+
+test_forwards <- predict(forwards_model, testx)
+errors_forwards <- test$meanDOC- test_forwards
+forwards_R_Squared <- cor(test_forwards, test$meanDOC)^2
+forwards_RMSE <- sqrt(mean(errors_forwards^2))
+forwards_MAE <- mean(abs(errors_forwards))
+
+plot(test$Year, test$meanDOC, xlab = "Year", ylab = "Mean DOC",
+     main = "Forwards Model")
+lines(test$Year, test_forwards, col = 'purple', type = 'p')
+
 ```
 
 The resulting coefficients are:
