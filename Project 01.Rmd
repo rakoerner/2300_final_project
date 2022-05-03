@@ -5,6 +5,7 @@ date: "4/28/2022"
 output: pdf_document
 ---
 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   comment = "#", fig.height = 4, 
@@ -37,8 +38,8 @@ BIC <- step(full_mod, direction="backward", k=log(nrow(train)), trace = 0)
 
 ```{r}
 empty_model <- lm(meanDOC ~ 1, data = data_for_BIC)
-forwards_model <- step(empty_model, direction="forward", k=log(nrow(train)), 
-                       trace = 0)
+forwards_model <- step(empty_model, direction="forward", k=log(nrow(train)),
+                       scope = (full_mod), trace = 0)
 ```
 
 ```{r}
@@ -125,12 +126,16 @@ RMSE - `r lasso_RMSE`
 MAE - `r lasso_MAE`
 
 ```{r}
-plot(test$Year, test$meanDOC)
+plot(test$Year, test$meanDOC, xlab = 'Year', ylab = 'Mean DOC', 
+     main = 'Backwards Model')
 lines(test$Year, test_BIC, col = 'red', type = 'p')
-plot(test$Year, test$meanDOC)
+plot(test$Year, test$meanDOC, xlab = 'Year', ylab = 'Mean DOC',
+     main = 'Linear Model')
 lines(test$Year, test_elevation, col = 'blue', type = 'p')
-plot(test$Year, test$meanDOC)
+plot(test$Year, test$meanDOC, xlab = 'Year', ylab = 'Mean DOC',
+     main = 'Lasso Model')
 lines(test$Year, test_lasso, col = 'green', type = 'p')
-plot(test$Year, test$meanDOC)
+plot(test$Year, test$meanDOC, xlab = 'Year', ylab = 'Mean DOC',
+     main = 'Forwards Model')
 lines(test$Year, test_forwards, col = 'purple', type = 'p')
 ```
