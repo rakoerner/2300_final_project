@@ -132,7 +132,7 @@ Coefficients remaining are:
 plot(lasso_fit)
 ```
 
-
+Elevation mean is a pretty consistent factor so let's see if there's any unique correspondance.
 
 
 ```{r}
@@ -168,3 +168,20 @@ points(red$meanDOC, red$elevation_mean, col = "red")
 
 
 ```
+
+
+
+```{r}
+col_range <- colorRampPalette(c("black", "red", "yellow", "green", "blue"))
+colors <- col_range(4000)
+plot(data$Longitude, data$Latitude, col = colors[data$elevation_mean], pch = 20)
+legend.scale(zlim = c(0, max(data$elevation_mean)), col = colors[data$elevation_mean])
+#STOPPED HERREEEEEEEEEEEEEEEEEEEEE
+```
+
+
+#maybe see how each elevation group compares to DOC?
+
+
+
+
