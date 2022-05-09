@@ -1,0 +1,129 @@
+---
+output: "pdf_document"
+editor_options:
+  chunk_output_type: console
+urlcolor: blue
+fontsize: 12pt
+header-includes:
+- \usepackage{caption}
+- \captionsetup[figure]{labelformat=empty}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#",
+  cache = FALSE,
+  collapse = TRUE,
+  error = TRUE,
+  tidy.opts=list(width.cutoff=65)
+)
+```
+
+Mountain Pine Beetle Problem  
+Authors: Rachel Koerner and Josh Job Joseph
+
+Abstract
+Presented with the problem of Mountain Pine Beetles and the dangerous effects 
+that their corresponding Dissolved Oxygen Content levels produce followed by 
+learning the dangerous solutions of tree thinning and pesticide application, we 
+wanted to explore if there were any revelations in the corresponding data set 
+that could suggest a safer solution to this problem. Ultimately, our goal was to 
+process the relationships between this response variable (DOC) and the other 
+predictors in our given data set through exploratory analysis so that we could 
+forge a linear model for the Dissolved Oxygen Content level.  From the dataset 
+given, we knew that the Dissolved Oxygen Content level would be the response 
+variable of our analysis. The over 30 remaining variables in the dataset would 
+thus be our predictors. Given this, we deducted that we could perform variable 
+selection on the predictors to help prioritize significant factors and eliminate 
+potentially irrelevant factors. Doing this, the predictor of elevation mean was 
+determined as most significant. Relating this elevation mean to DOC levels 
+revealed a decidedly negative trend. With both Mountain Pine Beetles and their 
+current solutions being so dangerous, isolating the factor of elevation and 
+targeting the solution to just areas of significant elevation would address the 
+beetle issue while also limiting the amount of thinning and pesticide, 
+ultimately resulting in the least dangerous solution for all involved.
+
+Introduction
+From the Southwest of the United States all the way up to the Western side of 
+Canada, the Mountain Pine Beetle infects the tree bark of pines. The infection 
+of the bark then causes them to have the color of their pine needles to become 
+red, and then those needles fall off the tree, thus killing the tree. This is 
+already harmful to the environment, but decomposing needles cause more issues 
+than killing trees. The decaying needles then end up in the water supply via 
+some form of precipitation. During the last phase of water purification, 
+chlorine is added to the water supply, and when chlorine and dissolved organic 
+carbon combine, the result is carcinogenic by-products. Carcinogens are 
+extremely harmful given they cause cancer in living organisms, so it is 
+within our best interest to figure out if there are factors that correlate to 
+the mean dissolved organic carbon, and if there is, then how may the factors 
+contribute to a solution to the problem at hand.
+
+Methods
+Several predictive models were made to gain information about what variables are 
+influence mean DOC. The first step was to split the data into test and train 
+data with a 50/50 split. The test and train data each had random rows of data 
+assigned to them to prevent the models from being overtrained/skewed. Next step 
+was to remove the columns “Year” and “New Location ID”. When making 
+multi-variable models, it is imperative that the independent variables 
+correlate to the dependent variable (mean DOC). “Year” would correlate with most 
+independent variables; hence it needs to be removed to prevent the models from 
+being skewed. “New Location ID” was removed because unnecessary variables create 
+additional noise, which could distort the model by overpowering other more 
+important variables. The predictive models that were created were: Backwards 
+model (BIC variant), Forwards model, Linear model trained on elevation, and a 
+Lasso model. All data was trained on train data and predictions were made based 
+on the test data. The models were then plotted on top of test data to verify 
+that the models were made properly and to check if they resembled the test data.
+     
+
+
+Results
+By using the modeling methods discussed (backwards, forwards, and lasso), we 
+accumulated a list of significant coefficients according to each model. 
+Elevation mean was the factor that was deemed significant by each of these 
+models. The factor of “wasteWaterPointSources_count” was another factor deemed 
+significant by each, but “elevation_mean” acquired the higher significance than 
+this. With elevation mean as our designated factor, we used this to produce the 
+linear model discussed earlier as well. Each of these four methods (backwards, 
+forwards, lasso, and linear), all produced decently accurate models according to 
+our plots based on training and test data. It was because of this accuracy that 
+we knew we could rely on the result they produced in pronouncing the 
+of elevation mean.
+
+  Having further verified the reliability of our conclusion, a 
+simple linear model was made to identify the correlation between DOC and the 
+elevation mean itself. The result was an evidently negative trend suggesting 
+that DOC increases as elevation decreases. On first glance, this could suggest 
+that the problem is the elevation. That is, if DOC is high at low elevations, 
+why not just address the Mountain Pine Beetle Problem at low elevations. 
+This perspective fails to include the whole context though.
+
+ Further observation would reveal two horizontally linear accumulation of points 
+within the plot, one around the elevation mean 2600 and the other around 1800. 
+These two elements of the graph suggest the presence of accumulation of water 
+(where DOC is measured), revealing the presence of large bodies of water. This 
+observation leads to the understanding that the reason the DOC is increasing as 
+elevation lowers is because the DOC content from various elevations 
+accumulating as they flow towards lower elevations with paths of runoff water 
+and other bodies of water. The relationship with DOC is not then inclusively 
+due to elevation but also to the accumulation of DOC at all previous 
+elevations.
+
+  This conclusion is further supported by the high density of observations at 
+high elevations simply because there are so much of them. The more sparse 
+observations at lower observations confirm the “bodies of water” theory that 
+such DOC accumulates in large bodies rather than sporadically dispersing at 
+lower elevations.
+By now understanding the correspondence with elevation, more efficient solution 
+can be applied to the Mountain Pine Beetle Problem.
+
+Discussion
+The conventional solutions pertaining to mean DOC issues are thinning and 
+spraying. Thinning requires the bark of the pine trees to be thinned a certain 
+amount and at a certain time to not negatively impact the health of the tree. 
+Spraying involves the use of pesticides, which is harmful to the environment. 
+By using the fact that elevation is a key factor, the use of thinning and 
+spraying can be limited to be as cost-effective and as environmentally friendly 
+as possible. The usage of thinning and spraying will be best utilized at higher 
+altitudes to prevent mean DOC from traveling down into bigger bodies of water.
+
