@@ -90,6 +90,9 @@ our plots based on training and test data. It was because of this accuracy that
 we knew we could rely on the result they produced in pronouncing the 
 of elevation mean.
 
+![alt text here]("C:\Users\jobjj\Desktop\Intro_To_Data_Science\Graphs.png")
+
+![alt text here]("C:\Users\jobjj\Desktop\Intro_To_Data_Science\Linear_Model_Graph.png")
   Having further verified the reliability of our conclusion, a 
 simple linear model was made to identify the correlation between DOC and the 
 elevation mean itself. The result was an evidently negative trend suggesting 
